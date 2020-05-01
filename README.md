@@ -21,6 +21,8 @@ Currently:
     - `b ** e`: `b` raised to the power `e`. `e` may be a float or an integer,
       but if it is an integer, it will be truncated to 32-bits.
 
+TODO: better error messages
+
 ## Building
 
 You will need [stable Rust](https://rustup.rs).
@@ -37,15 +39,15 @@ You can install from cargo:
 cargo install calculatrs
 ```
 
-I also alias `c` to `calculatrs` in my terminal for convenience.
+The installed binary is called `c`.
 
 ## Usage
 
 Suppose you install the binary on your path
 
 ```console
-> calculatrs 10 / 5
+> c 10 / 5
 2
-> calculatrs '10 / 5'
+> c '10 / 5'
 2
 ```
