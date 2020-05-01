@@ -1,0 +1,12 @@
+[package]
+name = "calculatrs"
+version = "0.1.0"
+authors = ["mark <markm@cs.wisc.edu>"]
+edition = "2018"
+
+[build-dependencies]
+lalrpop = { version = "0.18.1", features = ["lexer"] }
+
+[dependencies]
+lalrpop-util = "0.18.1"
+regex = "1"

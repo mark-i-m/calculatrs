@@ -1,0 +1,76 @@
+use std::str::FromStr;
+use lalrpop_util::ParseError;
+
+grammar;
+
+// Primitives
+
+FloatFront: f64 = <s:r"(-)?[0-9]+\.[0-9]*(E(-)?[0-9]+)?"> =>? f64::from_str(s).map_err(|_| ParseError::User {
+    error: "Not a floating point number",
+});
+
+FloatBack: f64  = <s:r"(-)?\.[0-9]+(E(-)?[0-9]+)?"> =>? f64::from_str(s).map_err(|_| ParseError::User {
+    error: "Not a floating point number",
+});
+
+Int: i128 = <s:r"(-)?[0-9]+"> =>? i128::from_str(s).map_err(|_| ParseError::User {
+    error: "Not an integer",
+});
+
+Float: f64 = {
+    <f:FloatFront> => f,
+    <f:FloatBack> => f,
+}
+
+// Integer Expressions
+
+CastToInt: i128 = { 
+    "int" "(" <n:IntExpr> ")" => n,
+    "int" "(" <f:FloatExpr> ")" => f as i128,
+};
+
+IntTerm: i128 = { Int, "(" <IntExpr> ")", CastToInt };
+
+IntFactor: i128 = {
+    <l:IntFactor> "*" <r:IntTerm> => l * r,
+    <l:IntFactor> "/" <r:IntTerm> => l / r,
+    <l:IntFactor> "<<" <r:IntTerm> => l << r,
+    <l:IntFactor> ">>" <r:IntTerm> => l >> r,
+    IntTerm,
+};
+
+pub IntExpr: i128 = {
+    <l:IntExpr> "+" <r:IntFactor> => l + r,
+    <l:IntExpr> "-" <r:IntFactor> => l - r,
+    IntFactor,
+};
+
+// Floating-point Expressions
+
+CastToFloat: f64 = { 
+    "float" "(" <n:IntExpr> ")" => n as f64,
+    "float" "(" <f:FloatExpr> ")" => f,
+};
+
+FloatTerm: f64 = { Float, "(" <FloatExpr> ")", CastToFloat };
+
+FloatFactor: f64 = {
+    <l:FloatFactor> "*" <r:FloatTerm> => l * r,
+    <l:FloatFactor> "**" <r:IntTerm> => l.powi(r as i32),
+    <l:FloatFactor> "**" <r:FloatTerm> => l.powf(r),
+    <l:FloatFactor> "/" <r:FloatTerm> => l / r,
+    FloatTerm,
+};
+
+pub FloatExpr: f64 = {
+    <l:FloatExpr> "+" <r:FloatFactor> => l + r,
+    <l:FloatExpr> "-" <r:FloatFactor> => l - r,
+    FloatFactor,
+};
+
+// For convenience, we define a top-level production that just prints the value.
+
+pub ExprResult: String = {
+    <f:FloatExpr> => format!("{}", f),
+    <n:IntExpr> => format!("{}", n),
+}
