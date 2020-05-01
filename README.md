@@ -20,3 +20,32 @@ Currently:
       division for float-typed operands.
     - `b ** e`: `b` raised to the power `e`. `e` may be a float or an integer,
       but if it is an integer, it will be truncated to 32-bits.
+
+## Building
+
+You will need [stable Rust](https://rustup.rs).
+
+```sh
+cargo build
+```
+
+## Installing
+
+You can install from cargo:
+
+```
+cargo install calculatrs
+```
+
+I also alias `c` to `calculatrs` in my terminal for convenience.
+
+## Usage
+
+Suppose you install the binary on your path
+
+```console
+> calculatrs 10 / 5
+2
+> calculatrs '10 / 5'
+2
+```
