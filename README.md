@@ -51,3 +51,5 @@ Suppose you install the binary on your path
 > c '10 / 5'
 2
 ```
+
+Beware of your shell expanding `*` into "list all files".
