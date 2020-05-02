@@ -1,90 +1,53 @@
-use std::str::FromStr;
-use lalrpop_util::ParseError;
+use crate::ast;
 
 grammar;
 
 // Previous result
 
-IntPrevious: i128 = {
-    "_i" =>? crate::previous::<i128>().map_err(|error| ParseError::User { error })
-};
-
-FloatPrevious: f64 = {
-    "_f" =>? crate::previous::<f64>().map_err(|error| ParseError::User { error }),
-};
+Previous: ast::Value<'input> = "_" => ast::Value::PreviousResult;
 
 // Primitives
 
-FloatFront: f64 = {
-    <s:r"(-)?[0-9]+\.[0-9]*(E(-)?[0-9]+)?"> =>?
-        f64::from_str(s).map_err(|_| ParseError::User {
-            error: "Not a floating point number",
-        }),
-};
-FloatBack: f64 = {
-    <s:r"(-)?\.[0-9]+(E(-)?[0-9]+)?"> =>? f64::from_str(s).map_err(|_| ParseError::User {
-        error: "Not a floating point number",
-    }),
-};
+FloatFront: ast::Value<'input> = <r"(-)?[0-9]+\.[0-9]*(E(-)?[0-9]+)?"> => ast::Value::Float(<>);
+FloatBack: ast::Value<'input> = <r"(-)?\.[0-9]+(E(-)?[0-9]+)?"> => ast::Value::Float(<>);
+Float = { FloatFront, FloatBack };
+Int: ast::Value<'input> = <s:r"(-)?[0-9]+"> => ast::Value::Int(<>);
 
-Int: i128 = <s:r"(-)?[0-9]+"> =>? i128::from_str(s).map_err(|_| ParseError::User {
-    error: "Not an integer",
-});
+Num = { Float, Int, Previous };
 
-Float: f64 = {
-    <f:FloatFront> => f,
-    <f:FloatBack> => f,
-}
+// Expressions
 
-// Integer Expressions
+CastToInt: Box<ast::Expr<'input>> = "int" "(" <e:Expr> ")" =>
+    Box::new(ast::Expr::IntCast{ expr: e });
+CastToFloat: Box<ast::Expr<'input>> = "float" "(" <e:Expr> ")" =>
+    Box::new(ast::Expr::FloatCast{ expr: e });
 
-CastToInt: i128 = {
-    "int" "(" <n:IntExpr> ")" => n,
-    "int" "(" <f:FloatExpr> ")" => f as i128,
+Term: Box<ast::Expr<'input>> = {
+    Num => Box::new(ast::Expr::Value { val: <> }),
+    "(" <Expr> ")",
+    CastToInt,
+    CastToFloat,
 };
 
-IntTerm: i128 = { Int, "(" <IntExpr> ")", CastToInt, IntPrevious };
-
-IntFactor: i128 = {
-    <l:IntFactor> "*" <r:IntTerm> => l * r,
-    <l:IntFactor> "/" <r:IntTerm> => l / r,
-    <l:IntFactor> "<<" <r:IntTerm> => l << r,
-    <l:IntFactor> ">>" <r:IntTerm> => l >> r,
-    IntTerm,
+Tier<Op, NextTier>: Box<ast::Expr<'input>> = {
+    <t:Tier<Op, NextTier>> <o:Op> <n:NextTier> =>
+        Box::new(ast::Expr::BinOp{left: t, op: o, right: n}),
+    NextTier,
 };
 
-pub IntExpr: i128 = {
-    <l:IntExpr> "+" <r:IntFactor> => l + r,
-    <l:IntExpr> "-" <r:IntFactor> => l - r,
-    IntFactor,
+ExprOp: ast::BinOp = {
+    "+" => ast::BinOp::Add,
+    "-" => ast::BinOp::Sub,
 };
 
-// Floating-point Expressions
-
-CastToFloat: f64 = {
-    "float" "(" <n:IntExpr> ")" => n as f64,
-    "float" "(" <f:FloatExpr> ")" => f,
+FactorOp: ast::BinOp = {
+    "*" => ast::BinOp::Mul,
+    "/" => ast::BinOp::Div,
+    "<<" => ast::BinOp::ShiftLeft,
+    ">>" => ast::BinOp::ShiftRight,
+    "**" => ast::BinOp::Exp,
 };
 
-FloatTerm: f64 = { Float, "(" <FloatExpr> ")", CastToFloat, FloatPrevious };
+Factor = Tier<FactorOp, Term>;
 
-FloatFactor: f64 = {
-    <l:FloatFactor> "*" <r:FloatTerm> => l * r,
-    <l:FloatFactor> "**" <r:IntTerm> => l.powi(r as i32),
-    <l:FloatFactor> "**" <r:FloatTerm> => l.powf(r),
-    <l:FloatFactor> "/" <r:FloatTerm> => l / r,
-    FloatTerm,
-};
-
-pub FloatExpr: f64 = {
-    <l:FloatExpr> "+" <r:FloatFactor> => l + r,
-    <l:FloatExpr> "-" <r:FloatFactor> => l - r,
-    FloatFactor,
-};
-
-// For convenience, we define a top-level production that just prints the value.
-
-pub ExprResult: String = {
-    <f:FloatExpr> => format!("{}", f),
-    <n:IntExpr> => format!("{}", n),
-}
+pub Expr = Tier<ExprOp, Factor>;

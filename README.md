@@ -7,24 +7,26 @@ only need to do simple arithmetic, though, this should be fine.
 Currently:
 - All integers are 128-bit signed
 - All floating-point values are 64-bit IEEE754.
-- Integers and floating-point values cannot be mixed without an explicit cast:
-  `int(2.0)` or `float(2)`.
-- Precedence aims to be C-like, though, I haven't tested thoroughly
+- Integers are coerced to floats, but not the other way around.
+- Values can be explicitly cast to a type: `int(2.0)` or `float(2)`. For
+  integers, this truncates the value.
+- Precedence aims to be C-like, though, I haven't tested thoroughly.
 - Expressions can be grouped with `( <expr> )`, as one would expect.
 - Integers support the following basic operations:
     - `+`, `-`, `*`, `/`: basic arithmetic. Note that we use integer division
       for integer-typed operands.
     - `<<`, `>>`: left and right shift
+    - `b ** e`: `b` raised to the power `e`. If `e` is a float, `b` is cast to
+      a float also. If `e` is an integer, `e` is cast to a 32-bit unsigned
+      integer.
 - Floats support the following basic operations:
     - `+`, `-`, `*`, `/`: basic arithmetic. Note that we use floating-point
       division for float-typed operands.
     - `b ** e`: `b` raised to the power `e`. `e` may be a float or an integer,
       but if it is an integer, it will be truncated to 32-bits.
-- Can use the previous result:
-    - `_i` if it was an integer
-    - `_f` if it was a float
-
-TODO: better error messages
+- The special `_` value represents the previous (typed) result, which is stored
+  in `/tmp/calculatrs`. It can be used any place a value is expected. If an
+  error occurs, no change is made to the saved value.
 
 ## Building
 
