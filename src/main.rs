@@ -1,15 +1,39 @@
+use std::str::FromStr;
+
 use lalrpop_util::lalrpop_mod;
 
 lalrpop_mod!(pub calculatrs);
 
+const TEMP_PATH: &str = "/tmp/calculatrs";
+
+/// Attempt to read the previous result and return it
+fn previous<T: FromStr>() -> Result<T, &'static str>
+where
+    <T as FromStr>::Err: std::fmt::Display,
+{
+    let value_str = std::fs::read_to_string(TEMP_PATH)
+        .map_err(|_| "Unable to read previous value in temp file")?;
+
+    value_str
+        .parse::<T>()
+        .map_err(|_| "Unable parse previous value in temp file")
+}
+
 fn main() {
     let arg_str = std::env::args().skip(1).collect::<Vec<_>>().join(" ");
-    match calculatrs::ExprResultParser::new().parse(&arg_str) {
-        Ok(result) => println!("{}", result),
+    let result = match calculatrs::ExprResultParser::new().parse(&arg_str) {
+        Ok(result) => {
+            println!("{}", result);
+            result
+        }
         Err(err) => {
             println!("{}", err);
+            std::process::exit(1);
         }
-    }
+    };
+
+    let result_str = format!("{}", result);
+    std::fs::write(TEMP_PATH, result_str).expect("Unable to write result to temp file.");
 }
 
 #[cfg(test)]

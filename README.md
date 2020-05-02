@@ -20,6 +20,9 @@ Currently:
       division for float-typed operands.
     - `b ** e`: `b` raised to the power `e`. `e` may be a float or an integer,
       but if it is an integer, it will be truncated to 32-bits.
+- Can use the previous result:
+    - `_i` if it was an integer
+    - `_f` if it was a float
 
 TODO: better error messages
 
