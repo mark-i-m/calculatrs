@@ -270,9 +270,21 @@ mod test {
     }
 
     #[test]
+    fn float_sci_not() {
+        test_float!("2.0E2", 200.0);
+        test_float!("-2.0E2", -200.0);
+        test_float!("-2.0E-2", -0.02);
+        test_float!("-0.2E3", -20.0);
+        test_float!("-.2E3", -200.0);
+        test_float!(".2E3", 200.0);
+        test_float!("2E2", 200.0);
+    }
+
+    #[test]
     fn float_expr() {
         test_float!("2.0 ** 3", 8.0);
         test_float!("2.0 ** 3.0", 8.0);
+        test_float!("1E1 ** 10", 10E10);
 
         test_float!(
             "22.0 / 11.0 * -3.0 * 1.5 + (4.0 + -1.0) ** float(1 << 1)",

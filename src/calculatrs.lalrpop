@@ -10,7 +10,8 @@ Previous: ast::Value<'input> = "_" => ast::Value::PreviousResult;
 
 FloatFront: ast::Value<'input> = <r"(-)?[0-9]+\.[0-9]*(E(-)?[0-9]+)?"> => ast::Value::Float(<>);
 FloatBack: ast::Value<'input> = <r"(-)?\.[0-9]+(E(-)?[0-9]+)?"> => ast::Value::Float(<>);
-Float = { FloatFront, FloatBack };
+FloatIntMant: ast::Value<'input> = <r"(-)?[0-9]+E(-)?[0-9]+"> => ast::Value::Float(<>);
+Float = { FloatFront, FloatBack, FloatIntMant };
 Int: ast::Value<'input> = <s:r"(-)?[0-9]+"> => ast::Value::Int(<>);
 
 Num = { Float, Int, Previous };

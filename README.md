@@ -7,11 +7,9 @@ only need to do simple arithmetic, though, this should be fine.
 Currently:
 - All integers are 128-bit signed
 - All floating-point values are 64-bit IEEE754.
-- Integers are coerced to floats, but not the other way around.
+- Integers are coerced to floats in mixed expressions.
 - Values can be explicitly cast to a type: `int(2.0)` or `float(2)`. For
   integers, this truncates the value.
-- Precedence aims to be C-like, though, I haven't tested thoroughly.
-- Expressions can be grouped with `( <expr> )`, as one would expect.
 - Integers support the following basic operations:
     - `+`, `-`, `*`, `/`: basic arithmetic. Note that we use integer division
       for integer-typed operands.
@@ -24,6 +22,14 @@ Currently:
       division for float-typed operands.
     - `b ** e`: `b` raised to the power `e`. `e` may be a float or an integer,
       but if it is an integer, it will be truncated to 32-bits.
+- Precedence aims to be sane, though I haven't tested thoroughly:
+
+  |`+`, `-`| Lower Precedence |
+  |--------|------------------|
+  |All others| Higher Precence|
+
+- All operators are right-associative.
+- Expressions can be grouped with `( <expr> )`, as one would expect.
 - The special `_` value represents the previous (typed) result, which is stored
   in `/tmp/calculatrs`. It can be used any place a value is expected. If an
   error occurs, no change is made to the saved value.
