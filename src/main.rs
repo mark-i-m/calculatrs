@@ -164,7 +164,13 @@ fn eval(ast: ast::Expr<'_>) -> Result<Evaluated, EvalError> {
         }
 
         Expr::Value { val } => match val {
-            Int(s) => Evaluated::Int(s.parse::<i128>().unwrap()),
+            Int(s) => {
+                if &s[..2] == "0x" {
+                    Evaluated::Int(i128::from_str_radix(&s[2..], 16).unwrap())
+                } else {
+                    Evaluated::Int(i128::from_str_radix(s, 10).unwrap())
+                }
+            }
             Float(s) => Evaluated::Float(s.parse::<f64>().unwrap()),
             PreviousResult => previous()?,
         },

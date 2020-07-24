@@ -12,7 +12,9 @@ FloatFront: ast::Value<'input> = <r"(-)?[0-9]+\.[0-9]*(E(-)?[0-9]+)?"> => ast::V
 FloatBack: ast::Value<'input> = <r"(-)?\.[0-9]+(E(-)?[0-9]+)?"> => ast::Value::Float(<>);
 FloatIntMant: ast::Value<'input> = <r"(-)?[0-9]+E(-)?[0-9]+"> => ast::Value::Float(<>);
 Float = { FloatFront, FloatBack, FloatIntMant };
-Int: ast::Value<'input> = <s:r"(-)?[0-9]+"> => ast::Value::Int(<>);
+IntDec: ast::Value<'input> = <s:r"(-)?[0-9]+"> => ast::Value::Int(<>);
+IntHex: ast::Value<'input> = <s:r"0x[0-9A-Fa-f]+"> => ast::Value::Int(<>);
+Int = { IntDec, IntHex };
 
 Num = { Float, Int, Previous };
 
