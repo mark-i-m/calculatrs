@@ -165,7 +165,7 @@ fn eval(ast: ast::Expr<'_>) -> Result<Evaluated, EvalError> {
 
         Expr::Value { val } => match val {
             Int(s) => {
-                if &s[..2] == "0x" {
+                if s.len() >= 2 && &s[..2] == "0x" {
                     Evaluated::Int(i128::from_str_radix(&s[2..], 16).unwrap())
                 } else {
                     Evaluated::Int(i128::from_str_radix(s, 10).unwrap())
