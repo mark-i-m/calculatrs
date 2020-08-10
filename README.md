@@ -33,6 +33,10 @@ Currently:
 - The special `_` value represents the previous (typed) result, which is stored
   in `/tmp/calculatrs`. It can be used any place a value is expected. If an
   error occurs, no change is made to the saved value.
+- In order to make it easier to use directly in the terminal, the following
+  alternate syntaxes exist:
+    - `*` == `x`
+    - `**` == `^^`
 
 ## Building
 

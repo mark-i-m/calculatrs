@@ -45,10 +45,12 @@ ExprOp: ast::BinOp = {
 
 FactorOp: ast::BinOp = {
     "*" => ast::BinOp::Mul,
+    "x" => ast::BinOp::Mul,
     "/" => ast::BinOp::Div,
     "<<" => ast::BinOp::ShiftLeft,
     ">>" => ast::BinOp::ShiftRight,
     "**" => ast::BinOp::Exp,
+    "^^" => ast::BinOp::Exp,
 };
 
 Factor = Tier<FactorOp, Term>;
